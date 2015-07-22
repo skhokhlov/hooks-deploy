@@ -1,0 +1,9 @@
+{
+  "hooks": [
+    {
+      "name": "gewebot",
+      "path": "/mnt/sda/",
+      "cmd": "node server.js"
+    }
+  ]
+}
