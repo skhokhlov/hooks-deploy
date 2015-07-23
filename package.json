@@ -1,0 +1,27 @@
+{
+  "name": "hooks-deploy",
+  "version": "0.1.0",
+  "description": "The script for deploying apps via hooks.",
+  "main": "hooks-deploy",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": "./hooks-deploy",
+  "preferGlobal": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/skhokhlov/hooks-deploy.git"
+  },
+  "keywords": [
+    "hooks",
+    "webhooks",
+    "deploying",
+    "deploy"
+  ],
+  "author": "Sergey Khokhlov <sergey.a.khokhlov@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/skhokhlov/hooks-deploy/issues"
+  },
+  "homepage": "https://github.com/skhokhlov/hooks-deploy#readme"
+}
