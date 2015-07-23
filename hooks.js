@@ -5,7 +5,13 @@ var config = require('./config.json');
 var hookNames = [];
 
 for (var i = 0; i < config.hooks.length; ++i) {
-    hookNames.push(config.hooks[i].name);
+    if (Boolean(config.hooks[i].name && config.hooks[i].path && config.hooks[i].cmd)) {
+        hookNames.push(config.hooks[i].name);
+
+    } else {
+        throw new Error('Invalid config file');
+    }
+
 }
 
 http.createServer(function (req, res) {
@@ -48,6 +54,7 @@ http.createServer(function (req, res) {
                     res.writeHead(200, 'OK');
                     res.end(stdout);
                 });
+                
             } else {
                 res.writeHead(404, 'Not Found');
                 res.end('404');
