@@ -1,11 +1,14 @@
 #!/usr/bin/env node
-
+//-----------------
 var http = require('http');
 var exec = require('child_process').exec;
 
 var config = require('./config.json');
 var hookNames = [];
 
+/**
+ * Validating configuration file and creating list of hooks
+ */
 for (var i = 0; i < config.hooks.length; ++i) {
     if (Boolean(config.hooks[i].name && config.hooks[i].path && config.hooks[i].cmd)) {
         hookNames.push(config.hooks[i].name);
@@ -33,11 +36,17 @@ http.createServer(function (req, res) {
 
         req.on('end', function () {
             body = JSON.parse(body);
+            /**
+             * Validating request body
+             */
             if (!Boolean(body.name && body.repository && body.branch && !/\//.test(body.branch))) {
                 res.writeHead(400, 'Bad Request');
                 res.end('400 Bad Request');
             }
 
+            /**
+             * Checking availability of hook and doing main actions
+             */
             if (hookNames.indexOf(body.name) > -1) {
                 var hook = config.hooks[hookNames.indexOf(body.name)];
                 var cmd = 'cd {hook.path} && rm -rf {body.branch} ' +

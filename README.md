@@ -1,5 +1,6 @@
 # Hooks deploy
 [![npm version](https://badge.fury.io/js/hooks-deploy.svg)](http://badge.fury.io/js/hooks-deploy)
+
 The script for deploying apps via hooks.
 
 Dependencies:
@@ -8,6 +9,11 @@ Dependencies:
 * tar
 
 ### Usage
+Installing:
+```
+$ npm install -g hooks-deploy
+```
+
 Running:
 ```
 $ hooks-deploy
