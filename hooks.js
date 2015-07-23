@@ -41,15 +41,15 @@ http.createServer(function (req, res) {
 
                 exec(cmd, function (err, stdout) {
                     if (err) {
-                        res.writeHead(500, 'Internal Server Error', {'Content-Type': 'text/html'});
+                        res.writeHead(500, 'Internal Server Error');
                         res.end('500 Internal Server Error\n' + err);
                     }
 
-                    res.writeHead(200, "OK");
+                    res.writeHead(200, 'OK');
                     res.end(stdout);
                 });
             } else {
-                res.writeHead(404, "Not Found");
+                res.writeHead(404, 'Not Found');
                 res.end('404');
             }
 
@@ -62,4 +62,4 @@ http.createServer(function (req, res) {
     }
 
 })
-    .listen(7999);
+    .listen(process.env.PORT || 7999);
