@@ -1,7 +1,7 @@
 # Hooks deploy
 The script for deploying apps via hooks.
 
-Dependings:
+Dependencies:
 * nodejs
 * git
 * tar
@@ -9,7 +9,7 @@ Dependings:
 ### Usage
 Running:
 ```
-./hooks
+$ hooks-deploy
 ```
 For usage you should send HTTP POST request to your server with body.
 Body example:
