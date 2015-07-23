@@ -1,5 +1,7 @@
 #!/usr/bin/env node
+
 //-----------------
+
 var http = require('http');
 var exec = require('child_process').exec;
 
@@ -36,18 +38,13 @@ http.createServer(function (req, res) {
 
         req.on('end', function () {
             body = JSON.parse(body);
-            /**
-             * Validating request body
-             */
-            if (!Boolean(body.name && body.repository && body.branch && !/\//.test(body.branch))) {
-                res.writeHead(400, 'Bad Request');
-                res.end('400 Bad Request');
-            }
 
             /**
-             * Checking availability of hook and doing main actions
+             * Validating request body and checking availability of hook and doing main actions
              */
-            if (hookNames.indexOf(body.name) > -1) {
+            if (Boolean(body.name && body.repository && body.branch && !/\//.test(body.branch)) &&
+                hookNames.indexOf(body.name) > -1) {
+
                 var hook = config.hooks[hookNames.indexOf(body.name)];
                 var cmd = 'cd {hook.path} && rm -rf {body.branch} ' +
                     '&& git clone {body.repository} {body.branch} -b {body.branch} ' +
