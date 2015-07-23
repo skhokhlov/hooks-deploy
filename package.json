@@ -1,6 +1,6 @@
 {
   "name": "hooks-deploy",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "The script for deploying apps via hooks.",
   "main": "hooks-deploy",
   "scripts": {

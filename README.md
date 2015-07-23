@@ -1,8 +1,9 @@
 # Hooks deploy
+[![npm version](https://badge.fury.io/js/hooks-deploy.svg)](http://badge.fury.io/js/hooks-deploy)
 The script for deploying apps via hooks.
 
 Dependencies:
-* nodejs
+* node.js
 * git
 * tar
 
@@ -12,6 +13,7 @@ Running:
 $ hooks-deploy
 ```
 For usage you should send HTTP POST request to your server with body.
+
 Body example:
 ```json
 {
@@ -20,12 +22,16 @@ Body example:
   "branch": "master"
 }
 ```
+
+
 You can do it with curl:
 ```
-curl -X POST \
+$ curl \
+    -X POST \
     -d '{"name":"foo","repository": "https://*","branch": "master"}' \
     --url http://localhost:7999/
 ```
+
 
 Configuration file example:
 ```json
