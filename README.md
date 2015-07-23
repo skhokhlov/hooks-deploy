@@ -6,7 +6,8 @@ Dependings:
 * git
 * tar
 
-### Running
+### Usage
+Running:
 ```
 node hooks.js
 ```

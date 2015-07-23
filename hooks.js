@@ -31,14 +31,14 @@ http.createServer(function (req, res) {
 
         req.on('end', function () {
             body = JSON.parse(body);
-            if (!Boolean(body.name && body.repository && body.branch)) {
+            if (!Boolean(body.name && body.repository && body.branch && !/\//.test(body.branch))) {
                 res.writeHead(400, 'Bad Request');
                 res.end('400 Bad Request');
             }
 
             if (hookNames.indexOf(body.name) > -1) {
                 var hook = config.hooks[hookNames.indexOf(body.name)];
-                var cmd = 'cd {hook.path} && git clone {body.repository} {body.branch} -b {body.branch} ' +
+                var cmd = 'cd {hook.path} && rm -rf {body.branch} && git clone {body.repository} {body.branch} -b {body.branch} ' +
                     '&& cd {body.branch} && {hook.cmd}';
                 cmd = cmd.replace(new RegExp('{hook.path}', 'g'), hook.path)
                     .replace(new RegExp('{body.repository}', 'g'), body.repository)
@@ -54,10 +54,10 @@ http.createServer(function (req, res) {
                     res.writeHead(200, 'OK');
                     res.end(stdout);
                 });
-                
+
             } else {
-                res.writeHead(404, 'Not Found');
-                res.end('404');
+                res.writeHead(400, 'Bad Request');
+                res.end('400 Bad Request');
             }
 
         })
