@@ -1,21 +1,12 @@
 var http = require('http');
-var url = require('url');
-var exec = require('child_process').exec();
-var fs = require('fs');
+var exec = require('child_process').exec;
 
-var config = null;
+var config = require('./config.json');
 var hookNames = [];
-fs.readFile(__dirname + '/config.json', {encoding: 'utf-8'}, function (err, data) {
-    if (err) {
-        throw new Error(err);
-    }
 
-    config = JSON.parse(data);
-
-    for (var i = 0; i < config.hooks.length; ++i) {
-        hookNames.push(config.hooks[i].name);
-    }
-});
+for (var i = 0; i < config.hooks.length; ++i) {
+    hookNames.push(config.hooks[i].name);
+}
 
 http.createServer(function (req, res) {
     if (req.method === 'POST') {
@@ -27,36 +18,39 @@ http.createServer(function (req, res) {
          *  "branch": "master"
          * }
          */
-        var body;
+        var body = '';
         req.on('data', function (chunk) {
-            console.log(chunk.toString());
-            body += chunk;
+            body += String(chunk);
         });
 
-        res.on('end', function () {
-
+        req.on('end', function () {
             body = JSON.parse(body);
-            if(body.name && body.repository && body.branch){
+            if (!Boolean(body.name && body.repository && body.branch)) {
                 res.writeHead(400, 'Bad Request');
                 res.end('400 Bad Request');
             }
-            console.log(body.name && body.repository && body.branch);
 
             if (hookNames.indexOf(body.name) > -1) {
-                var index = hookNames.indexOf(body.name);
-                exec('wget ' + body.repository + '/archive/' + body.branch + '.tar.gz ' +
-                '-O' + config.hooks[index].path + body.branch + '.tar.gz' +
-                    ' && tar xf ' + config.hooks[index].path + body.branch + '.tar.gz' +
-                    ' && ' + config.hooks[index].cmd + ' &', function(err){
-                    if (err){
+                var hook = config.hooks[hookNames.indexOf(body.name)];
+                var cmd = 'cd {hook.path} && git clone {body.repository} {body.branch} -b {body.branch} ' +
+                    '&& cd {body.branch} && {hook.cmd}';
+                cmd = cmd.replace(new RegExp('{hook.path}', 'g'), hook.path)
+                    .replace(new RegExp('{body.repository}', 'g'), body.repository)
+                    .replace(new RegExp('{body.branch}', 'g'), body.branch)
+                    .replace(new RegExp('{hook.cmd}', 'g'), hook.cmd);
+
+                exec(cmd, function (err, stdout) {
+                    if (err) {
                         res.writeHead(500, 'Internal Server Error', {'Content-Type': 'text/html'});
-                        res.end('<html><head><title>500 - Internal Server Errord</title></head>' +
-                        '<body><h1>Internal Server Error.</h1></body></html><!-- ' + err + '-->');
+                        res.end('500 Internal Server Error\n' + err);
                     }
 
                     res.writeHead(200, "OK");
-                    res.end('OK');
+                    res.end(stdout);
                 });
+            } else {
+                res.writeHead(404, "Not Found");
+                res.end('404');
             }
 
         })
