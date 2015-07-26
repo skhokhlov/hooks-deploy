@@ -23,5 +23,8 @@
   "bugs": {
     "url": "https://github.com/skhokhlov/hooks-deploy/issues"
   },
-  "homepage": "https://github.com/skhokhlov/hooks-deploy#readme"
+  "homepage": "https://github.com/skhokhlov/hooks-deploy#readme",
+  "dependencies": {
+    "commander": "^2.8.1"
+  }
 }
