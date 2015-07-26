@@ -12,7 +12,7 @@ program
     .option('-c, --config <file ...>', 'configuration file, default: ~/.hooks-deploy.conf')
     .on('--help', function () {
         console.log('  By default program will be run and wait for requests.\n');
-        console.log('  More information on https://github.com/skhokhlov/hooks-deploy#readme');
+        console.log('  More information on ' + require('./package.json').homepage);
     })
     .parse(process.argv);
 
@@ -63,7 +63,7 @@ http.createServer(function (req, res) {
         req.on('end', function () {
             try {
                 body = JSON.parse(body);
-            } catch (e){
+            } catch (e) {
                 res.writeHead(400, 'Bad Request');
                 res.end('400 Bad Request');
             }
@@ -84,8 +84,7 @@ http.createServer(function (req, res) {
 
                 exec(cmd, function (err, stdout, stderr) {
                     if (err || stderr) {
-                        res.writeHead(500, 'Internal Server Error');
-                        res.end('500 Internal Server Error\n' + stderr);
+                        status(res, 500, stderr);
                     }
 
                     var pid = getPID(hook.name);
@@ -94,54 +93,83 @@ http.createServer(function (req, res) {
                     if (pid) {
                         exec('kill ' + pid, function (err, stdout, stderr) {
                             if (err || stderr) {
-                                res.writeHead(500, 'Internal Server Error');
-                                res.end('500 Internal Server Error\n' + stderr);
+                                status(res, 500, stderr);
                             }
 
                             var app = exec(hook.cmd, function (err, stdout, stderr) {
                                 if (err || stderr) {
-                                    res.writeHead(500, 'Internal Server Error');
-                                    res.end('500 Internal Server Error\n' + stderr);
+                                    status(res, 500, stderr);
                                 }
 
                                 setPID(hook.name, app.pid);
 
-                                res.writeHead(200, 'OK');
-                                res.end(stdout);
+                                status(res, 200, stdout);
                             });
                         });
 
                     } else {
-                        exec(hook.cmd + ' &', function (err, stdout, stderr) {
+                        var app = exec(hook.cmd, function (err, stdout, stderr) {
                             if (err || stderr) {
-                                res.writeHead(500, 'Internal Server Error');
-                                res.end('500 Internal Server Error\n' + stderr);
+                                status(res, 500, stderr);
                             }
 
-                            console.log(stdout);
+                            setPID(hook.name, app.pid);
 
-                            res.writeHead(200, 'OK');
-                            res.end(stdout);
+                            status(res, 200, stdout);
                         });
                     }
 
                 });
 
             } else {
-                res.writeHead(400, 'Bad Request');
-                res.end('400 Bad Request');
+                status(res,400);
             }
 
         });
 
     } else {
-        res.writeHead(405, 'Method not supported');
-        res.end('405 - Method not supported');
+        status(res, 405);
     }
 
 })
     .listen(config.port || 7999);
 
+/**
+ *
+ * @param {Object} res
+ * @param {Number} code
+ * @param err
+ */
+function status(res, code, msg) {
+    switch (code) {
+        case 200:
+            res.writeHead(200, 'OK');
+            res.end(msg || '');
+            break;
+
+        case 400:
+            res.writeHead(400, 'Bad Request');
+            res.end('400 Bad Request');
+            break;
+
+        case 405:
+            res.writeHead(405, 'Method not supported');
+            res.end('405 - Method not supported');
+            break;
+
+        case 500:
+            res.writeHead(500, 'Internal Server Error');
+            res.end('500 Internal Server Error\n' + (msg || ''));
+            break;
+
+    }
+}
+
+/**
+ *
+ * @param {String} name
+ * @returns {*}
+ */
 function getPID(name) {
     if (fs.existsSync(process.env.HOME + '/.hooks-deploy.pids.json')) {
         return JSON.parse(fs.readFileSync(process.env.HOME + '/.hooks-deploy.pids.json', {encoding: 'utf-8'}))[name];
@@ -151,6 +179,11 @@ function getPID(name) {
     }
 }
 
+/**
+ *
+ * @param {String} name
+ * @param {Number} pid
+ */
 function setPID(name, pid) {
     var file;
     if (fs.existsSync(process.env.HOME + '/.hooks-deploy.pids.json')) {

@@ -16,7 +16,11 @@
     "hooks",
     "webhooks",
     "deploying",
-    "deploy"
+    "deploy",
+    "binary",
+    "daemon",
+    "server",
+    "listener"
   ],
   "author": "Sergey Khokhlov <sergey.a.khokhlov@gmail.com>",
   "license": "MIT",
